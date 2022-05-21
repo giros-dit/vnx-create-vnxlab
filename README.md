@@ -5,33 +5,34 @@ Author: David Fernández (david.fernandez at upm.es)
 ## Quick recipe to create VNXLAB2022
 
 - Create the base image with:
-
+```
 cd base-vm
 ./create-bento-ubuntu-box -g lubuntu -a 64 -d focal -v yes
 vagrant destroy
 cd ..
-
+```
 - Create the VM:
-
+```
 ./create-vm -c VNXSDNLAB.conf 
-
+```
 - Customization:
+```
 cd customizedir
 ./customize-from-inside.sh
-
+```
 - Open firefox for the first time to avoid greeting messages later.
-
 - Clean and halt (password xxxx):
+```
 ssh upm@localhost -p 2222 /usr/local/bin/clean_and_halt
-
+```
 - Shrink VM by executing:
-
+```
 ./shrink-vm
-
+```
 - Do final configurations and convert to OVA format:
-
+```
 ./prepare-ova VNXLAB2022-v1
-
+```
 
 ## 1 - Introduction
 
