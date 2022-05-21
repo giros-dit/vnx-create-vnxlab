@@ -1,9 +1,39 @@
-VNX lab virtual machine creation scripts
-----------------------------------------
+# VNX lab virtual machine creation scripts
 
 Author: David Fernández (david.fernandez at upm.es)
 
-1 - Introduction
+## Quick recipe to create VNXLAB2022
+
+- Create the base image with:
+
+cd base-vm
+./create-bento-ubuntu-box -g lubuntu -a 64 -d focal -v yes
+vagrant destroy
+cd ..
+
+- Create the VM:
+
+./create-vm -c VNXSDNLAB.conf 
+
+- Customization:
+cd customizedir
+./customize-from-inside.sh
+
+- Open firefox for the first time to avoid greeting messages later.
+
+- Clean and halt (password xxxx):
+ssh upm@localhost -p 2222 /usr/local/bin/clean_and_halt
+
+- Shrink VM by executing:
+
+./shrink-vm
+
+- Do final configurations and convert to OVA format:
+
+./prepare-ova VNXLAB2022-v1
+
+
+## 1 - Introduction
 
 These scripts were aimed to create Ubuntu based virtual machines with VNX installed to be used for 
 laboratory exercises or project demostrations, although they can be also used to create other virtual
@@ -21,7 +51,7 @@ The reason to divide the process in two steps is to accelerate the second step, 
 a lot of times during the development. Moving all the slow package installation (mainly the GUI desktop 
 package) to the first step, makes the second one much faster.
 
-2 - Installation
+## 2 - Installation
 
 - Requirements: Install Vagrant and VirtualBox
 
@@ -72,7 +102,7 @@ package) to the first step, makes the second one much faster.
     during provision (see customize.sh example file)
 
 
-3 - VM creation steps
+## 3 - VM creation steps
 
 - Create the base image. For example, to create a 64 bits Ubuntu 18.04 with gnome:
 
@@ -127,30 +157,4 @@ package) to the first step, makes the second one much faster.
 
 
 
-- Create the base image with:
 
-cd base-vm
-./create-bento-ubuntu-box -g lubuntu -a 64 -d focal -v yes
-vagrant destroy
-cd ..
-
-- Create the VM:
-
-./create-vm -c VNXSDNLAB.conf 
-
-- Customization:
-cd customizedir
-./customize-from-inside.sh
-
-- Open firefox for the first time to avoid greeting messages later.
-
-- Clean and halt (password xxxx):
-ssh upm@localhost -p 2222 /usr/local/bin/clean_and_halt
-
-- Shrink VM by executing:
-
-./shrink-vm
-
-- Do final configurations and convert to OVA format:
-
-./prepare-ova VNXLAB2022-v1
