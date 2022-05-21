@@ -50,11 +50,11 @@ package) to the first step, makes the second one much faster.
 
 ## 2 - Installation
 
-- Requirements: Install Vagrant and VirtualBox
+Requirements: Install Vagrant and VirtualBox
 ```bash
 apt-get install virtualbox vagrant
 ```
-- Download scripts:
+Clone repository:
 ```bash
 git clone https://github.com/davidfdezc/vnx-create-vm.git
 ```
@@ -69,7 +69,7 @@ git clone https://github.com/davidfdezc/vnx-create-vm.git
 
 - Customize the installation by:
 
-  - Creating a configuration file to specify the values of the basic installation variables:
+  1 Creating a configuration file to specify the values of the basic installation variables:
 ```bash
 DIST: Ubuntu distribution version (trusty, vivid, wily, xenial, zesty)
 ARCH: 32 or 64 bits
@@ -96,7 +96,7 @@ VMLANG=es
 MEM=4096 
 VCPUS=2 
 ```
-  - Editing customize.sh script and including customization commands to be run from inside the VM 
+  2 - Editing customize.sh script and including customization commands to be run from inside the VM 
     during provision (see customize.sh example file)
 
 ## 3 - VM creation steps
