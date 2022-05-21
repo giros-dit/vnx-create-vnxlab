@@ -56,20 +56,18 @@ apt-get install virtualbox vagrant
 ```
 Clone repository:
 ```bash
-git clone https://github.com/davidfdezc/vnx-create-vm.git
+git clone https://github.com/giros-dit/vnx-create-vnxlab.git
 ```
-  The following files will be downloaded:
-  - create-bento-ubuntu-box: script to create the base virtual machine
-  - create-vm: script to create the final virtual machine
-  - Vagrantfile: virtual machine vagrant configuration file
-  - bootstrap.sh: final virtual machine provision script 
-  - customize.sh: script to include customized code
-  - shrink-vm: script to shrink virtual machine image before creating the OVA package
-  - prepare-ova: script to create the OVA (*.ova) package with the final virtual machine
-
-- Customize the installation by:
-
-  1 Creating a configuration file to specify the values of the basic installation variables:
+Among others, the following files will be downloaded:
+- create-bento-ubuntu-box: script to create the base virtual machine
+- create-vm: script to create the final virtual machine
+- Vagrantfile: virtual machine vagrant configuration file
+- bootstrap.sh: final virtual machine provision script 
+- customize.sh: script to include customized code
+- shrink-vm: script to shrink virtual machine image before creating the OVA package
+- prepare-ova: script to create the OVA (*.ova) package with the final virtual machine
+Customize the installation by:
+* Creating a configuration file to specify the values of the basic installation variables:
 ```bash
 DIST: Ubuntu distribution version (trusty, vivid, wily, xenial, zesty)
 ARCH: 32 or 64 bits
@@ -82,7 +80,7 @@ VMLANG: language (es, en, etc)
 MEM: memory assigned to VM in MB (Ex: 2048)
 VCPUS: numebre of cores assigned to VM (Ex: 4)
 ```
-    For example:
+For example:
 ```bash
 $ cat VNXLAB.conf 
 DIST=focal
@@ -96,8 +94,7 @@ VMLANG=es
 MEM=4096 
 VCPUS=2 
 ```
-  2 - Editing customize.sh script and including customization commands to be run from inside the VM 
-    during provision (see customize.sh example file)
+* Editing customize.sh script and including customization commands to be run from inside the VM during provision (see customize.sh example file)
 
 ## 3 - VM creation steps
 - Create the base image. For example, to create a 64 bits Ubuntu 18.04 with gnome:
