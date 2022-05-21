@@ -65,7 +65,8 @@ Among others, the following files will be downloaded:
 - bootstrap.sh: final virtual machine provision script 
 - customize.sh: script to include customized code
 - shrink-vm: script to shrink virtual machine image before creating the OVA package
-- prepare-ova: script to create the OVA (*.ova) package with the final virtual machine
+- prepare-ova: script to create the OVA (\*.ova) package with the final virtual machine
+
 Customize the installation by:
 * Creating a configuration file to specify the values of the basic installation variables:
 ```bash
@@ -79,9 +80,8 @@ NEWPASSWD: password of main user
 VMLANG: language (es, en, etc)
 MEM: memory assigned to VM in MB (Ex: 2048)
 VCPUS: numebre of cores assigned to VM (Ex: 4)
-```
+
 For example:
-```bash
 $ cat VNXLAB.conf 
 DIST=focal
 ARCH=64
@@ -97,41 +97,41 @@ VCPUS=2
 * Editing customize.sh script and including customization commands to be run from inside the VM during provision (see customize.sh example file)
 
 ## 3 - VM creation steps
-- Create the base image. For example, to create a 64 bits Ubuntu 18.04 with gnome:
+- Create the base image. For example, to create a 64 bits Ubuntu 20.04 with gnome:
 ```bash
-    cd base-vm
-    ./create-bento-ubuntu-box -g gnome -a 64 -d focal -v yes 
-    vagrant destroy
-    cd ..
+cd base-vm
+./create-bento-ubuntu-box -g gnome -a 64 -d focal -v yes 
+vagrant destroy
+cd ..
 ```
   Note: execute "./create-bento-ubuntu-box -h" to see the meaning of arguments.
 - Create VM with:
 ```bash
-    ./create-vm -c VNXLAB.conf
+./create-vm -c VNXLAB.conf
 ```
   Note: change VNXLAB.conf by the name of your config file.
 - Start firefox an close it (to avoid the firefox init page next time it is started)
 - Execute the internal customizationi-from-inside.sh script from a VM terminal:
 ```bash
-    cd customizedir
-    ./customize-from-inside.sh
+cd customizedir
+./customize-from-inside.sh
 ```
 - Do any other manual configuration you want to do to the VM.
   - Ex: configure the "packet diagram" option in "Edit->Preferences->Appearance->Layout".
 - Clean up and halt the VM by executing:
- ```bash
-    /usr/local/bin/clean_and_halt
+```bash
+/usr/local/bin/clean_and_halt
+# Note: this script takes some time as it fills the filesystem with zeros to allow better compression.
 ```
-  Note: this script takes some time as it fills the filesystem with zeros to allow better compression.
 - Shrink VM by executing:
 ```bash
-    ./shrink-vm
+./shrink-vm
 ```
 - Do final configurations and convert to OVA format:
 ```bash
-    ./prepare-ova <vm-name>
+./prepare-ova <vm-name>
 ```
   For example:
 ```bash
-    ./prepare-ova VNXLAB2022-v1
+./prepare-ova VNXLAB2022-v1
 ```
