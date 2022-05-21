@@ -1,0 +1,111 @@
+#!/bin/bash
+
+USAGE="
+Usage:
+    ipv6 [-p] enable
+    ipv6 [-p] disable
+    ipv6 status
+
+    -p: enable/disable ipv6 permanently in grub
+"
+
+if [ "$#" -gt 2 -o "$#" -lt 1 -o "$1" == "-h" -o "$1" == "--help" ]; then
+    echo "$USAGE"
+    exit 0
+fi
+
+indent() { sed 's/^/   /'; }
+
+show_status() {
+    echo "--"
+    if test -f /proc/net/if_inet6; then
+        # IPv6 enabled in kernel
+        if ls /proc/sys/net/ipv6/conf/all/disable_ipv6 > /dev/null 2>&1; then 
+            if [ $( sysctl -n net.ipv6.conf.all.disable_ipv6 ) -eq 1 ]; then 
+                echo -n "-- IPv6 status:  ENABLED in kernel but DISABLED temporarily"
+            else
+                echo -n "-- IPv6 status:  ENABLED"
+            fi
+        else
+            echo -n "-- IPv6 status:  ENABLED"
+        fi
+    else
+        echo -n "-- IPv6 status:  DISABLED in kernel"
+    fi
+
+    IPV6DISABLED=$( sudo bash -c "cat /etc/default/grub |grep 'ipv6.disable=1'" )
+    if [ "$IPV6DISABLED" ]; then
+        echo " (disabled for next startup)"
+    else
+        echo " (enabled for next startup)"
+    fi
+    echo "--"
+    #cat /etc/sysctl.conf | grep disable_ipv6 | indent
+    #echo "-- Values in /etc/sysctl.conf set to:"
+    #cat /etc/sysctl.conf | grep disable_ipv6 | indent
+}
+
+NAMES='all default eth0 lo'
+
+if [ "$1" == "-p" ]; then 
+    PERSISTENT=true
+    shift
+fi
+
+case $1 in
+
+enable)
+    if [ "$PERSISTENT" ]; then
+        #echo "-- IPv6 status:  ENABLED permanently"
+        sudo sed -i -e "s/GRUB_CMDLINE_LINUX_DEFAULT=\"ipv6.disable=1 /GRUB_CMDLINE_LINUX_DEFAULT=\"/" /etc/default/grub
+        sudo update-grub
+        echo "-- IPv6 permanently enabled in grub. Reboot for the changes to take efect."
+    else 
+        if  test -f /proc/net/if_inet6; then 
+            for s in $NAMES; do
+                sudo sysctl -w net.ipv6.conf.${s}.disable_ipv6=0
+                #sudo sed -i -e "/net.ipv6.conf.${s}.disable_ipv6/d" /etc/sysctl.conf
+                #sudo bash -c "echo 'net.ipv6.conf.${s}.disable_ipv6=0' >> /etc/sysctl.conf"
+            done
+        else
+            echo "--"
+            echo "-- ERROR: IPv6 not active in kernel. Enable it at startup and reboot."
+        fi
+    fi
+    show_status
+    #echo "-- Values in /etc/sysctl.conf set to:"
+    #cat /etc/sysctl.conf | grep disable_ipv6 | indent
+    ;;
+
+disable)
+    if [ "$PERSISTENT" ]; then
+        #echo "-- IPv6 status:  DISABLED permanently"
+        sudo sed -i -e "s/GRUB_CMDLINE_LINUX_DEFAULT=\"/GRUB_CMDLINE_LINUX_DEFAULT=\"ipv6.disable=1 /" /etc/default/grub
+        sudo update-grub
+        echo "-- IPv6 permanently disabled in grub. Reboot for the changes to take efect."
+    else 
+        if ls /proc/sys/net/ipv6/conf/all/disable_ipv6 > /dev/null 2>&1; then 
+            for s in $NAMES; do
+                sudo sysctl -w net.ipv6.conf.${s}.disable_ipv6=1
+                #sudo sed -i -e "/net.ipv6.conf.${s}.disable_ipv6/d" /etc/sysctl.conf
+                #sudo bash -c "echo 'net.ipv6.conf.${s}.disable_ipv6=1' >> /etc/sysctl.conf"
+            done
+        fi
+    fi
+    show_status
+    #echo "-- Values in /etc/sysctl.conf set to:"
+    #cat /etc/sysctl.conf | grep disable_ipv6 | indent
+    ;;
+
+status)
+    show_status
+    ;;
+
+*)
+    echo ""
+    echo "ERROR: Invalid argument value '$1'" >&2
+    echo "$USAGE"
+    exit 1
+    ;;
+
+esac

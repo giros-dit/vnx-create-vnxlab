@@ -1,0 +1,233 @@
+#!/usr/bin/python3
+
+# ---------------------------------------------------------------------------------
+# ipprefix-divide
+#
+# Authors:    David Fernández (david.fernandez@upm.es),
+# Copyright (C) 2020 DIT-UPM
+#                    Departamento de Ingenieria de Sistemas Telematicos
+#                    Universidad Politecnica de Madrid
+#                    SPAIN
+#
+
+import sys
+from netaddr import *
+import argparse
+import random
+
+def restricted_float(x):
+# Taken from https://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin
+    try:
+        x = float(x)
+    except ValueError:
+        raise argparse.ArgumentTypeError("%r not a floating-point literal" % (x,))
+    if x < 0.0 or x > 1.0:
+        raise argparse.ArgumentTypeError("%r not in range [0.0, 1.0]"%(x,))
+    return x
+
+# Check arguments using argparse library
+parser = argparse.ArgumentParser(description='ipprefix-divide: given an IP prefix, it returns the list of subprefixes of the lengths specified')
+parser.add_argument('--format', choices=['csv', 'txt-graph', 'txt'], default='txt-graph', help='output format: csv txt-graph txt')
+parser.add_argument('--quiet', '-q', action="store_true", default=False, help='do not print any headers, just the table')
+parser.add_argument('--linecolnum', '-l', action="store_true", default=False, help='print lines and columns numbers')
+parser.add_argument('--randomhide', '-r', type=restricted_float, help='print lines and columns numbers')
+parser.add_argument('--prefixprefix', '-p', action="store_true", default=False, help='number the prefixes and add \'PXX:\' before them')
+parser.add_argument("ip_prefix",help="the prefix to be divided (e.g. 10.1.0.0/16)")
+parser.add_argument("lengths",help="a comma-separated list of prefix lengths (e.g. 24,26,28)")
+
+args = parser.parse_args()
+
+#Usage="""
+#ipprefix-divide: given an IP prefix, it returns the list of subprefixes of the lengths specified
+#
+#Usage:
+#    ipprefix-divide <ip_prefix> <lengths>
+#
+#    <ip_prefix>: is the prefix to be divided (e.g. 10.1.0.0/16)
+#    <lengths>:   is a comma-separated list of prefix lengths (e.g. 24,26,28)
+#"""
+
+## Check number of parameters
+#if len(sys.argv) != 3:
+#    print('--')
+#    print('-- ERROR: incorrect number of arguments')
+#    print('--')
+#    print(Usage)
+#    exit(1)
+
+if not args.quiet:
+    print('--')
+    print('-- IP prefix division table')
+    print('--')
+
+#prefix='20.5.0.0/23'
+#prefix=sys.argv[1]
+#arglens=sys.argv[2].split(",")
+prefix=args.ip_prefix
+arglens=args.lengths.split(",")
+lens=[]
+subprefix={}
+
+#print(args.ip_prefix)
+#print(args.lengths)
+
+# Check that the prefix is correct
+prefix=IPNetwork(prefix)
+
+# Convert lengths to integers
+for l in arglens:
+    lens.append(int(l))
+
+# Check if all lengths are higher that the prefix length
+for l in lens:
+    if l < prefix.prefixlen:
+        print('--')
+        print('-- ERROR: length {} is less than global prefix length ({}).'.format(l, prefix.prefixlen))
+        print('--')
+        exit(1)
+
+# Get the highest length
+maxlen=max(lens)
+
+#
+# Print separator function
+#
+def print_sep(line, numdirs, next_numdirs):
+
+    if args.format == 'txt':
+        print("       ", end='')
+    elif args.format == 'csv':
+        print(";", end='')
+    elif args.format == 'txt-graph':
+        #
+        # See https://en.wikipedia.org/wiki/Box-drawing_character for a list of conector chars
+        # ━ ┳ ┃ ┛ ┣ ┫
+        #
+        #print( 'line: {} / numdirs={} / next_numdirs={}'.format(line, numdirs, next_numdirs))
+        if next_numdirs > numdirs:
+            mod=int(numlines/numdirs)
+            next_mod=int(numlines/next_numdirs)
+            (c,r)=divmod(line,mod)
+            (nc,nr)=divmod(line,next_mod)
+            cm = int(mod/next_mod)
+            if nr == 0 and r == 0:
+                print (' ━━┳━━ ', end='')
+                #print ('{}/{},{},{}/{},{},{} ━━┳━━     '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+            elif nr == 0 and r != 0:
+                if divmod(nc,cm)[1] == cm-1: # or (true):
+                    print ('   ┗━━ ', end='')
+                    #print ('{}/{},{},{}/{},{},{}   ┗━━     '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+                else:
+                    print ('   ┣━━ ', end='')
+                    #print ('{}/{},{},{}/{},{},{}   ┣━━     '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+            elif (divmod(nc,cm)[1] == cm-1 and r != 0 ): # or (true):
+                print ('       ', end='')
+                #print ('{}/{},{},{}/{},{},{}           '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+            else:
+                print ('   ┃   '.format(r,nr), end='')
+                #print ('{}/{},{},{}/{},{},{}   ┃       '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+
+        elif next_numdirs < numdirs:
+            #print (' --- ', end='')
+            mod=int(numlines/numdirs)
+            next_mod=int(numlines/next_numdirs)
+            (c,r)=divmod(line,mod)
+            (nc,nr)=divmod(line,next_mod)
+            cm = int(next_mod/mod)
+            if r == 0 and nr == 0:
+                print (' ━━┳━━ ', end='')
+                #print (' {}/{},{},{}/{},{},{} ━━┳━━     '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+            elif r == 0 and nr != 0:
+                if divmod(c,cm)[1] == cm-1: # or (true):
+                    print (' ━━┛   ', end='')
+                    #print (' {}/{},{},{}/{},{},{} ━━┛       '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+                else:
+                    print (' ━━┫   ', end='')
+                    #print (' {}/{},{},{}/{},{},{} ━━┫       '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+            elif (divmod(c,cm)[1] == cm-1 and r != 0 ): # or (true):
+                print ('       ', end='')
+                #print (' {}/{},{},{}/{},{},{}           '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+            else:
+                print ('   ┃   '.format(r,nr), end='')
+                #print (' {}/{},{},{}/{},{},{}   ┃       '.format(cm,mod,c,r,next_mod,nc,nr), end='')
+    
+        else:
+            mod=int(numlines/numdirs)
+            (c,r)=divmod(line,mod)
+            if r == 0:
+                print (' ━━━━━ ', end='')
+            else:
+                print ('       ', end='')
+
+#
+# hide_prefix: generates a random number between 0 and 1.
+#              if the number is higher that the number 
+#              provided in --randomhide option, it returns
+#              true, otherwise returns false.
+#
+def hide_prefix():
+    if random.uniform(0,1) > args.randomhide:
+        return True
+    else:
+        return False
+
+
+if not args.quiet:
+    print('-- Main prefix: {}'.format(str(prefix)))
+    print('-- Lengths: {}'.format(str(lens)))
+    #print(maxlen)
+
+for i in lens:
+    subprefix[str(i)]=list(IPNetwork(prefix).subnet(i))
+    #print(str(subprefix[str(i)]))
+
+# Calculate the maximum prefix string length
+maxstrlen = 0
+for i in lens:
+    for p in subprefix[str(i)]:
+        if len(str(p)) > maxstrlen:
+            maxstrlen = len(str(p))
+#print ('maxstrlen={}'.format(maxstrlen))
+#maxstrlen = 18
+prefix_format='{:'+str(maxstrlen)+'}'
+#print(prefix_format)
+
+if not args.quiet:
+    print('--')
+
+# Print column numbers 
+if args.linecolnum and not args.format == 'csv':
+    print('     ', end='' ) 
+    for i in range(0,len(lens)):
+        print( prefix_format.format( str(i)), end='' )
+        print('       ', end='' ) 
+    print("")
+
+numprefix = 1
+numlines = 2**(maxlen-prefix.prefixlen)
+for i in range(0, numlines):
+    #print(i)
+    if args.linecolnum and not args.format == 'csv':
+        print( '{:3}  '.format(i), end='' ) 
+    for j,l in enumerate(lens):
+        #print(l)
+        numdirs = 2**(l-prefix.prefixlen )
+        mod=int(numlines/numdirs)
+        #print(mod)
+        if divmod(i,mod)[1] == 0: 
+            if args.prefixprefix:
+                aux = 'P{}:'.format(numprefix) 
+                print( '{:<5s}'.format(aux), end='' ) 
+                numprefix += 1
+            if args.randomhide and hide_prefix():
+                print( prefix_format.format(''), end='' )
+            else:
+                print( prefix_format.format( str(subprefix[str(l)][divmod(i,mod)[0]])), end='' )
+        else:
+            if args.prefixprefix:
+                print( '     '.format(''), end='' ) 
+            print( prefix_format.format(''), end='' )
+        # Print connectors
+        if j != len(lens)-1:
+            print_sep(i, numdirs, 2**(lens[j+1]-prefix.prefixlen ))
+    print()

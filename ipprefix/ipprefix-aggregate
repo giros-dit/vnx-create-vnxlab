@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+
+# ---------------------------------------------------------------------------------
+# ipprefix-aggregate
+#
+# Authors:    David Fernández (david.fernandez@upm.es)
+# Copyright (C) 2020 DIT-UPM
+#                    Departamento de Ingenieria de Sistemas Telematicos
+#                    Universidad Politecnica de Madrid
+#                    SPAIN
+#
+
+import sys
+from netaddr import *
+
+Usage="""
+ipprefix-aggregate: given a list of IP prefixes, it returns the list of IP subprefixes not used.
+
+Usage:
+    ipprefix-aggregate <prefix_list>
+
+    <prefix_list>: is a comma-separated list of IP prefixes 
+                   (e.g. 10.1.1.0/24,10.1.2.0/24,10.1.2.3/24)
+"""
+
+# Check number of parameters
+if len(sys.argv) != 2:
+    print('--')
+    print('-- ERROR: incorrect number of arguments')
+    print('--')
+    print(Usage)
+    exit(1)
+
+arg_pref=sys.argv[1].split(",")
+
+prefixes=IPSet([])
+
+print('-- Original prefixes:')
+for p in arg_pref:
+    print('     {}'.format(p))
+    prefixes.add(p)
+
+#print(prefixes.cidrs()) 
+#exit(1)
+print('-- Aggregated prefixes:')
+for p in list(prefixes.iter_cidrs()):
+    print('     {}'.format(p))

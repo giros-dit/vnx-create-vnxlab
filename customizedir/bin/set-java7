@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#sudo mkdir -p /usr/local/java
+#cd /usr/local/java
+#sudo wget --user=java --password=javajavadoo http://idefix.dit.upm.es/download/java/jdk-7u80-linux-x64.tar.gz
+#sudo tar xfvz jdk-7u80-linux-x64.tar.gz 
+
+sudo bash -c "cat <<EOF > /etc/profile.d/set_java_home.sh
+#!/bin/sh
+#export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export JAVA_HOME=/usr/local/java/jdk1.7.0_80
+export JRE_HOME=/usr/local/java/jdk1.7.0_80
+export PATH=\\\$PATH:\\\$JAVA_HOME/bin
+EOF"
+
+sudo update-alternatives --install "/usr/bin/java" "java" "/usr/local/java/jdk1.7.0_80/bin/java" 1
+sudo update-alternatives --install "/usr/bin/javac" "javac" "/usr/local/java/jdk1.7.0_80/bin/javac" 1
+sudo update-alternatives --install "/usr/bin/javaws" "javaws" "/usr/local/java/jdk1.7.0_80/bin/javaws" 1
+sudo update-alternatives --set java /usr/local/java/jdk1.7.0_80/bin/java
+sudo update-alternatives --set javac /usr/local/java/jdk1.7.0_80/bin/javac
+sudo update-alternatives --set javaws /usr/local/java/jdk1.7.0_80/bin/javaws
+source /etc/profile.d/set_java_home.sh
+java -version

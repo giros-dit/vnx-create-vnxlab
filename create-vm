@@ -1,0 +1,54 @@
+#!/bin/bash
+
+START_TIME=$SECONDS
+
+# Set default values
+#export DIST=xenial
+export DIST=bionic
+export ARCH=64
+export GUI=lubuntu
+export VNX=yes
+export HNAME=vnxsdn-vm
+export NEWUSER=upm
+export NEWPASSWD=xxxx
+export VMLANG=es
+export MEM=2048
+export VCPUS=2
+
+Usage="--
+-- Usage: create-vm [-c <conf_file>] [-h]
+--"
+
+while getopts ":hc:" opt; do
+  case $opt in
+    c)
+      CFGFILE=$OPTARG
+      if [ ! -e $CFGFILE ]; then 
+        echo "-- ERROR: config file '$CFGFILE' not found"
+        exit 1
+      fi
+      source $CFGFILE
+      ;;
+    h)
+      #echo "-h was triggered!" >&2
+      echo "$Usage"
+      exit 0
+      ;;
+    \?)
+      echo "-- ERROR: invalid option -$OPTARG" >&2
+      ;;
+    :)
+      echo "-- ERROR: option -$OPTARG requires an argument" >&2
+      echo "$Usage"
+      exit 1
+      ;;
+  esac
+done
+
+echo "DIST=$DIST"
+vagrant up
+
+ELAPSED_TIME=$(($SECONDS - $START_TIME))
+echo "--"
+echo "-- Virtual machine created in $ELAPSED_TIME seconds"
+echo "--"

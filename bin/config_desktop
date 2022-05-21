@@ -1,0 +1,24 @@
+#!/bin/bash
+/usr/bin/pcmanfm-qt &
+#pcmanfm &
+sleep 5
+#sed -i -e 's#Wallpaper=.*#Wallpaper=/usr/share/lubuntu/wallpapers/vnx-dit-upm-fondo-1024.png#' /home/upm/.config/pcmanfm-qt/lxqt/settings.conf
+#sed -i -e 's#WallpaperMode=.*#WallpaperMode=center#' /home/upm/.config/pcmanfm-qt/lxqt/settings.conf
+#sed -i -e 's/BgColor=.*/Bg=Color#d9eafa/' /home/upm/.config/pcmanfm-qt/lxqt/settings.conf
+#sed -i -e 's/QuickExec=.*/QuickExec=true/' /home/upm/.config/pcmanfm-qt/lxqt/settings.conf
+
+mkdir -p /home/upm/.config/lxqt/
+cp /home/upm/tmp/config/panel.conf /home/upm/.config/lxqt/
+cp -r /home/upm/tmp/config/pcmanfm-qt /home/upm/.config/
+#cp -a /home/upm/tmp/config/terminal /home/upm/.config/xfce4/
+#gsettings set apps.light-locker lock-after-screensaver 0
+#gsettings set apps.light-locker lock-on-suspend false
+#LOS=$( gsettings get apps.light-locker lock-on-suspend )
+#while [ $LOS == 'false' ]; do
+#  gsettings set apps.light-locker lock-on-suspend true
+#  sleep 1
+#  LOS=$( gsettings get apps.light-locker lock-on-suspend )
+#done
+#yad --text '\n\n\n    Present login session will be finished.    \n\n    Login again to load new settings.    ' --no-buttons --center &
+#sleep 5
+#pkill -SIGTERM -f lxsession

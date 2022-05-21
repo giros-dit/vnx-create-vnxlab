@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+~~~~~~~~~~~~~~~~~~~~
+VNX Tutorial scenario
+~~~~~~~~~~~~~~~~~~~~
+
+Name:        tutorial_one_vyos
+Description: A simple tutorial scenario made of 3 LXC Ubuntu virtual machines (h1, h2, h3) 
+             and 1 VyOS router (r1)
+
+This file is part of the Virtual Networks over LinuX (VNX) Project distribution. 
+(www: http://www.dit.upm.es/vnx - e-mail: vnx@dit.upm.es) 
+
+Departamento de Ingenieria de Sistemas Telematicos (DIT)
+Universidad Politecnica de Madrid
+SPAIN
+
+-->
+
+<vnx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="/usr/share/xml/vnx/vnx-2.00.xsd">
+  <global>
+    <version>2.0</version>
+    <scenario_name>tutorial_one_vyos</scenario_name>
+    <automac/>
+    <vm_mgmt type="none" />
+    <!--vm_mgmt type="private" network="10.250.0.0" mask="24" offset="200">
+       <host_mapping />
+    </vm_mgmt-->
+    <vm_defaults>
+        <console id="0" display="no"/>
+        <console id="1" display="yes"/>
+    </vm_defaults>
+
+    <vnx_cfg>tutorial_one_vyos.cvnx</vnx_cfg>
+
+    <help>
+        <seq_help seq='start-www'>Start apache2 web server</seq_help>
+        <seq_help seq='stop-www'>Stop apache2 web server</seq_help>
+    </help>
+    
+  </global>
+
+  <net name="Net1" mode="virtual_bridge" />
+  <net name="Net2" mode="virtual_bridge" />
+  <net name="Net3" mode="virtual_bridge" />
+  <net name="Net4" mode="virtual_bridge" />
+  <!--net name="virbr0" mode="virtual_bridge" managed="no"/ -->
+
+  <vm name="h1" type="lxc" arch="x86_64">
+    <filesystem type="cow">/usr/share/vnx/filesystems/rootfs_lxc_ubuntu64</filesystem>
+    <if id="1" net="Net1">
+      <ipv4>172.16.1.2/24</ipv4>
+    </if>
+    <!--if id="9" net="virbr0">
+      <ipv4>dhcp</ipv4>
+    </if-->
+    <route type="ipv4" gw="172.16.1.1">default</route>   
+    <!-- Copy the files under conf/tutorial_ubuntu/h3 to vm /var/www directory -->
+    <filetree seq="start-www" root="/var/www/html">conf/tutorial_ubuntu/h1/index.html</filetree>
+    <!-- Start/stop apache www server -->
+    <exec seq="start-www" type="verbatim" ostype="system">chmod 755 /var/www/html</exec>
+    <exec seq="start-www" type="verbatim" ostype="system">chmod 644 /var/www/html/*</exec>
+    <exec seq="start-www" type="verbatim" ostype="system">service apache2 start</exec>
+    <exec seq="stop-www" type="verbatim"  ostype="system">service apache2 stop</exec>    
+  </vm>
+  <vm name="h2" type="lxc" arch="x86_64">
+    <filesystem type="cow">/usr/share/vnx/filesystems/rootfs_lxc_ubuntu64</filesystem>
+    <if id="1" net="Net2">
+      <ipv4>172.16.2.2/24</ipv4>
+    </if>
+    <route type="ipv4" gw="172.16.2.1">default</route>   
+    <!-- Copy the files under conf/tutorial_ubuntu/h3 to vm /var/www directory -->
+    <filetree seq="start-www" root="/var/www/html">conf/tutorial_ubuntu/h2/index.html</filetree>
+    <!-- Start/stop apache www server -->
+    <exec seq="start-www" type="verbatim" ostype="system">chmod 755 /var/www/html</exec>
+    <exec seq="start-www" type="verbatim" ostype="system">chmod 644 /var/www/html/*</exec>
+    <exec seq="start-www" type="verbatim" ostype="system">service apache2 start</exec>
+    <exec seq="stop-www" type="verbatim"  ostype="system">service apache2 stop</exec>    
+  </vm>
+
+
+  <vm name="r1" type="lxc" arch="x86_64">
+    <filesystem type="cow">/usr/share/vnx/filesystems/rootfs_lxc_vyos</filesystem>
+    <if id="1" net="Net1">
+      <ipv4>172.16.1.1/24</ipv4>
+    </if>
+    <if id="2" net="Net2">
+      <ipv4>172.16.2.1/24</ipv4>
+    </if>
+    <if id="3" net="Net3">
+    </if>
+    <forwarding type="ip" />
+  </vm>
+
+  <vm name="h3" type="lxc" arch="x86_64">
+    <filesystem type="cow">/usr/share/vnx/filesystems/rootfs_lxc_ubuntu64</filesystem>
+    <if id="1" net="Net1">
+      <ipv4>172.16.1.3/24</ipv4>
+    </if>
+    <route type="ipv4" gw="172.16.1.1">default</route>   
+  </vm>
+
+  <vm name="r2" type="lxc" arch="x86_64">
+    <filesystem type="cow">/usr/share/vnx/filesystems/rootfs_lxc_vyos</filesystem>
+    <if id="1" net="unconnected">
+      <!--ipv4>172.16.1.1/24</ipv4-->
+    </if>
+    <if id="2" net="unconnected">
+      <!--ipv4>172.16.2.1/24</ipv4-->
+    </if>
+    <forwarding type="ip" />
+  </vm>
+
+  <!-- Uncomment these lines to add the host to Net1
+
+  <host>
+    <hostif net="Net1">
+      <ipv4>172.16.1.100/24</ipv4>
+    </hostif>
+    <route type="ipv4" gw="172.16.1.1">172.16.2.0/22</route>
+  </host>
+
+  -->
+  
+</vnx>
+

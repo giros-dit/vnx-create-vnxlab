@@ -1,0 +1,13 @@
+#!/bin/bash
+
+sudo deluser vagrant
+sudo apt-get autoremove
+sudo apt-get clean
+sudo dd if=/dev/zero of=/zerofile bs=1M
+sudo rm -f /zerofile
+sudo rm -f /var/crash/*
+sudo rm /root/.bash_history
+sudo rm /home/$USER/.bash_history
+sudo bash -c 'history -c'
+history -c
+sudo halt -p

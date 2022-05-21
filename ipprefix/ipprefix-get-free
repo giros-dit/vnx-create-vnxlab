@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+
+# ---------------------------------------------------------------------------------
+# ipprefix-get-free
+#
+# Authors:    David Fernández (david.fernandez@upm.es),
+# Copyright (C) 2020 DIT-UPM
+#                    Departamento de Ingenieria de Sistemas Telematicos
+#                    Universidad Politecnica de Madrid
+#                    SPAIN
+#
+
+import sys
+from netaddr import *
+
+Usage="""
+ipprefix-get-free: given an IP global prefix and a list of used subprefixes, it returns the list of IP subprefixes not used.
+
+Usage:
+    ipprefix-get-free <global_prefix> <used_prefixes_list>
+
+    <global_prefix>:      is the global prefix (e.g. 10.1.0.0/16)
+    <used_prefixes_list>: is a comma-separated list of used IP prefixes 
+                          (e.g. 10.1.1.0/24,10.1.2.0/24,10.1.2.3/24)
+"""
+
+# Check number of parameters
+if len(sys.argv) != 3:
+    print('--')
+    print('-- ERROR: incorrect number of arguments')
+    print('--')
+    print(Usage)
+    exit(1)
+
+global_prefix=IPNetwork(sys.argv[1])
+arg_usedpref=sys.argv[2].split(",")
+
+used_prefixes=IPSet([])
+
+print('-- Global prefix: {}'.format(global_prefix))
+
+s1 = IPSet(global_prefix)
+for p in arg_usedpref:
+    #print('Adding {}'.format(p))
+    s2 = IPSet([p])
+    if s1.isdisjoint(s2):
+        print('-- WARNING: subprefix {} is not included in global prefix {}'.format(p,global_prefix))
+    else:
+        used_prefixes.add(p)
+
+print('-- Used prefixes:')
+for p in list(used_prefixes.iter_cidrs()):
+    print('     {}'.format(p))
+
+not_used_prefixes = IPSet(global_prefix) ^ used_prefixes
+print('-- Free prefixes:')
+for p in list(not_used_prefixes.iter_cidrs()):
+    print('     {}'.format(p))
