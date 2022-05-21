@@ -3,34 +3,30 @@
 Author: David Fernández (david.fernandez at upm.es)
 
 ## Quick recipe to create VNXLAB2022
-
-- Create the base image with:
-```
+From the host:
+```bash
+# Create the base image with:
 cd base-vm
 ./create-bento-ubuntu-box -g lubuntu -a 64 -d focal -v yes
 vagrant destroy
 cd ..
+# Create the VM:
+./create-vm -c VNXSDNLAB.conf
 ```
-- Create the VM:
-```
-./create-vm -c VNXSDNLAB.conf 
-```
-- Customization:
-```
+From the virtual machine:
+```bash
+# Customization:
 cd customizedir
 ./customize-from-inside.sh
+# Open firefox for the first time to avoid greeting messages later.
 ```
-- Open firefox for the first time to avoid greeting messages later.
-- Clean and halt (password xxxx):
-```
+Back to the host:
+```bash
+# Clean and halt (password xxxx):
 ssh upm@localhost -p 2222 /usr/local/bin/clean_and_halt
-```
-- Shrink VM by executing:
-```
+# Shrink VM by executing:
 ./shrink-vm
-```
-- Do final configurations and convert to OVA format:
-```
+# Do final configurations and convert to OVA format:
 ./prepare-ova VNXLAB2022-v1
 ```
 
@@ -55,12 +51,13 @@ package) to the first step, makes the second one much faster.
 ## 2 - Installation
 
 - Requirements: Install Vagrant and VirtualBox
-
-    apt-get install virtualbox vagrant
-
+```bash
+apt-get install virtualbox vagrant
+```
 - Download scripts:
-
-    git clone https://github.com/davidfdezc/vnx-create-vm.git
+```bash
+git clone https://github.com/davidfdezc/vnx-create-vm.git
+```
 
   The following files will be downloaded:
   - create-bento-ubuntu-box: script to create the base virtual machine
@@ -74,6 +71,7 @@ package) to the first step, makes the second one much faster.
 - Customize the installation by:
 
   - Creating a configuration file to specify the values of the basic installation variables:
+```bash
       DIST: Ubuntu distribution version (trusty, vivid, wily, xenial, zesty)
       ARCH: 32 or 64 bits
       GUI: graphical interface (gnome, lubuntu, lubuntucore, no)
@@ -84,9 +82,10 @@ package) to the first step, makes the second one much faster.
       VMLANG: language (es, en, etc)
       MEM: memory assigned to VM in MB (Ex: 2048)
       VCPUS: numebre of cores assigned to VM (Ex: 4)
+```
 
     For example:
-
+```bash
       $ cat VNXLAB.conf 
       DIST=bionic
       ARCH=64
@@ -98,6 +97,7 @@ package) to the first step, makes the second one much faster.
       VMLANG=es 
       MEM=4096 
       VCPUS=2 
+```
 
   - Editing customize.sh script and including customization commands to be run from inside the VM 
     during provision (see customize.sh example file)
@@ -106,55 +106,53 @@ package) to the first step, makes the second one much faster.
 ## 3 - VM creation steps
 
 - Create the base image. For example, to create a 64 bits Ubuntu 18.04 with gnome:
-
+```bash
     cd base-vm
     ./create-bento-ubuntu-box -g gnome -a 64 -d focal -v yes 
     vagrant destroy
     cd ..
+```
 
   Note: execute "./create-bento-ubuntu-box -h" to see the meaning of arguments.
 
-
 - Create VM with:
-
+```bash
     ./create-vm -c VNXLAB.conf
-
+```
   Note: change VNXLAB.conf by the name of your config file.
-
-- (Only for lubuntu GUI) Once the VM is created and started, open a shell and execute: 
-
-    /usr/local/bin/config_desktop
-
-  The login session will be automatically terminated. Login again to see the new desktop settings.
 
 - Start firefox an close it (to avoid the firefox init page next time it is started)
 
 - Execute the internal customizationi-from-inside.sh script from a VM terminal:
-
+```bash
     cd customizedir
     ./customize-from-inside.sh
+```
 
 - Do any other manual configuration you want to do to the VM.
 
-  - Configure the "packet diagram" option in "Edit->Preferences->Appearance->Layout".
+  - Ex: configure the "packet diagram" option in "Edit->Preferences->Appearance->Layout".
 
 - Clean up and halt the VM by executing:
- 
+ ```bash
     /usr/local/bin/clean_and_halt
+```
 
   Note: this script takes some time as it fills the filesystem with zeros to allow better compression.
 
 - Shrink VM by executing:
-
+```bash
     ./shrink-vm
-
+```
 - Do final configurations and convert to OVA format:
-
+```bash
     ./prepare-ova <vm-name>
+```
 
   For example:
-
+```bash
     ./prepare-ova VNXLAB2022-v1
+```
 
 
 
