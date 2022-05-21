@@ -242,10 +242,14 @@ if [ "$GUI" == "gnome" -o "$GUI" == "lubuntu" -o "$GUI" == "lubuntucore" ]; then
     apt remove -y xscreensaver
 
     # Set autologin to the new created account
+    # and enable tcp connections to Xorg
 cat >> /etc/sddm.conf <<EOF
 [Autologin]
 Session=Lubuntu
 User=$NEWUSER
+
+[SeatDefaults]
+display-setup-script=xhost +
 EOF
 
   fi
