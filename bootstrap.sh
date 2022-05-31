@@ -248,8 +248,8 @@ cat >> /etc/sddm.conf <<EOF
 Session=Lubuntu
 User=$NEWUSER
 
-[SeatDefaults]
-display-setup-script=xhost +
+[X11]
+ServerArguments=-listen tcp
 EOF
 
   fi

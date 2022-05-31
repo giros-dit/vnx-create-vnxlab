@@ -45,4 +45,7 @@ if [ -d "$INSTALLDIR/tutoriales" ]; then
         chown -R $NEWUSER.$NEWUSER /home/$NEWUSER/tutoriales
 fi
 
+# Increase inotify.max_user_instances 
+echo "fs.inotify.max_user_instances=2048" >> /etc/sysctl.conf
+
 echo "----"

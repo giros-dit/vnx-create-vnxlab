@@ -40,9 +40,9 @@ chmod +x bin/set-java7 bin/set-java8
 
 echo "-- Copying VNX rootfs:"
 cd /usr/share/vnx/filesystems/
-sudo vnx_download_rootfs -r vnx_rootfs_lxc_ubuntu64-18.04-v025-vnxlab.tgz -l -y
-sudo ln -s vnx_rootfs_lxc_ubuntu64-18.04-v025-vnxlab rootfs_lxc64-rdor
-sudo rm vnx_rootfs_lxc_ubuntu64-18.04-v025-vnxlab.tgz
+sudo vnx_download_rootfs -r vnx_rootfs_lxc_ubuntu64-20.04-v025-vnxlab.tgz -l -y
+sudo ln -s vnx_rootfs_lxc_ubuntu64-20.04-v025-vnxlab rootfs_lxc64-rdor
+sudo rm vnx_rootfs_lxc_ubuntu64-20.04-v025-vnxlab.tgz
 #sudo vnx_download_rootfs -r vnx_rootfs_lxc_vyos64-1.1.8-v025.tgz -l -y
 sudo vnx_download_rootfs -r vnx_rootfs_lxc_vyos64-1.3-v025.tgz -l -y
 sudo rm vnx_rootfs_lxc_vyos64-1.3-v025.tgz
