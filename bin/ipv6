@@ -52,6 +52,8 @@ if [ "$1" == "-p" ]; then
     shift
 fi
 
+DIST=$( lsb_release -cs )
+
 case $1 in
 
 enable)
@@ -59,6 +61,9 @@ enable)
         #echo "-- IPv6 status:  ENABLED permanently"
         sudo sed -i -e "s/GRUB_CMDLINE_LINUX_DEFAULT=\"ipv6.disable=1 /GRUB_CMDLINE_LINUX_DEFAULT=\"/" /etc/default/grub
         sudo update-grub
+        if [ "$DIST" == 'focal' ]; then 
+            sudo sed -i -e '/ServerArguments=-listen/d' -e '/[X11]/a ServerArguments=-listen tcp' /etc/sddm.conf
+        fi
         echo "-- IPv6 permanently enabled in grub. Reboot for the changes to take efect."
     else 
         if  test -f /proc/net/if_inet6; then 
@@ -82,7 +87,12 @@ disable)
         #echo "-- IPv6 status:  DISABLED permanently"
         sudo sed -i -e "s/GRUB_CMDLINE_LINUX_DEFAULT=\"/GRUB_CMDLINE_LINUX_DEFAULT=\"ipv6.disable=1 /" /etc/default/grub
         sudo update-grub
+        if [ "$DIST" == 'focal' ]; then 
+            sudo sed -i -e '/ServerArguments=-listen/d' -e '/[X11]/a #ServerArguments=-listen tcp' /etc/sddm.conf
+        fi
         echo "-- IPv6 permanently disabled in grub. Reboot for the changes to take efect."
+        echo "--   Note: Xorg option '-listen tcp' deleted to avoid a bug that prevents Xorg to "
+        echo "--   start when ipv6 is disabled (https://bugzilla.redhat.com/show_bug.cgi?id=2075132)."
     else 
         if ls /proc/sys/net/ipv6/conf/all/disable_ipv6 > /dev/null 2>&1; then 
             for s in $NAMES; do
